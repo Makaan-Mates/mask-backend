@@ -1,0 +1,24 @@
+{
+  "name": "mask-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Makaan-Mates/mask-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Makaan-Mates/mask-backend/issues"
+  },
+  "homepage": "https://github.com/Makaan-Mates/mask-backend#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
