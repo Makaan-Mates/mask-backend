@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const secretKeyForAuthentication = "Mask@_#1045718";
 const mongoose = require("mongoose");
 const cors = require("cors");
-const User = require("./models/post.model");
+const User = require("./models/user.model");
 const Post = require("./models/post.model");
 
 app.use(cors());
