@@ -52,16 +52,14 @@ const verifyToken = (req, res, next) => {
       });
       return;
     } else {
-      res.json({
-        message: "authorized",
-      });
+      req.user = decoded;
       next();
     }
   });
 };
 
 app.get("/api/home", verifyToken, (req, res) => {
-  console.log(req.user);
+  //   console.log(req.user);
   res.json({
     key: "hello",
   });
@@ -112,12 +110,15 @@ app.post("/login", async (req, res) => {
 });
 
 // User Posts POST request
-app.post("/post", async (req, res) => {
+app.post("/post", verifyToken, async (req, res) => {
+  const user = await User.findOne({ email: req.user.email });
   const { topic, title, description } = req.body;
   const newPost = await Post({
     topic: topic,
     title: title,
     description: description,
+    user_id: user._id
+    
   });
 
   const savedPost = await newPost.save();
@@ -127,12 +128,12 @@ app.post("/post", async (req, res) => {
 });
 
 // User Posts GET requests
-app.get("/api/posts", async (req, res) => {
+app.get("/api/posts", verifyToken, async (req, res) => {
   try {
     const posts = await Post.find();
     res.json({
-        posts:posts
-    })
+      posts: posts,
+    });
   } catch {
     res.status(500).json({
       message: "Internal server error",
