@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const secretKeyForAuthentication = "Mask@_#1045718";
 const mongoose = require("mongoose");
 const cors = require("cors");
+const Post = require("./models/post.model");
+
 app.use(cors());
 app.use(express.json());
 // Connecting to mongodb...
@@ -26,32 +28,33 @@ const User = mongoose.model("User", {
     unique: true,
   },
   username: {
-    type:String,
-    unique: true
+    type: String,
+    unique: true,
   },
   password: {
-    type:String,
-    required:true
+    type: String,
+    required: true,
   },
 });
 
-
+// Token Verification
 const verifyToken = (req, res, next) => {
   const authHeaders = req.headers.authorization;
   const token = authHeaders && authHeaders.split(" ")[1];
 
-  if (token === null) return res.status(401).json({message:'token not found'});
+  if (token === null)
+    return res.status(401).json({ message: "token not found" });
 
   jwt.verify(token, secretKeyForAuthentication, (err, decoded) => {
     if (err) {
       res.status(401).json({
-        message:"invalid token"
+        message: "invalid token",
       });
+      return;
     } else {
       res.json({
-        message:"authorized"
+        message: "authorized",
       });
-      req.user = decoded;
       next();
     }
   });
@@ -94,17 +97,46 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    if (await user.password === password) {
+    if ((await user.password) === password) {
       const token = jwt.sign({ email: email }, secretKeyForAuthentication);
       res.status(200).json({
         token: token,
-        message:"logged in"
+        message: "logged in",
       });
     } else {
       res.status(401).json({ message: "wrong password bro" });
     }
   } catch {
     res.status(500).send();
+  }
+});
+
+// User Posts POST request
+app.post("/post", async (req, res) => {
+  const { topic, title, description } = req.body;
+  const newPost = await Post({
+    topic: topic,
+    title: title,
+    description: description,
+  });
+
+  const savedPost = await newPost.save();
+  res.json({
+    message: savedPost,
+  });
+});
+
+// User Posts GET requests
+app.get("/api/posts", async (req, res) => {
+  try {
+    const posts = await Post.find();
+    res.json({
+        posts:posts
+    })
+  } catch {
+    res.status(500).json({
+      message: "Internal server error",
+    });
   }
 });
 
