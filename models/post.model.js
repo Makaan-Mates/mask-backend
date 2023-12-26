@@ -5,11 +5,11 @@ const postSchema = new Schema(
   {
     title: {
       type: String,
-      required: true,
+  
     },
     description: {
       type: String,
-      required: true,
+      
     },
     user_id:{
        type:Schema.Types.ObjectId,
@@ -17,7 +17,6 @@ const postSchema = new Schema(
     },
     topic:{
         type:String,
-        required:true
     },
     createdAt: {
       type: Date,
