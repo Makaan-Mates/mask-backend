@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const secretKeyForAuthentication = "Mask@_#1045718";
 const mongoose = require("mongoose");
 const cors = require("cors");
+const User = require("./models/post.model");
 const Post = require("./models/post.model");
 
 app.use(cors());
@@ -18,23 +19,6 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("once", (error, response) => {
   console.log(response);
-});
-
-// Schema banane ke prakriya
-const User = mongoose.model("User", {
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  username: {
-    type: String,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
 });
 
 // Token Verification
@@ -52,9 +36,7 @@ const verifyToken = (req, res, next) => {
       });
       return;
     } else {
-      res.json({
-        message: "authorized",
-      });
+      req.user = decoded;
       next();
     }
   });
@@ -131,8 +113,8 @@ app.get("/api/posts", async (req, res) => {
   try {
     const posts = await Post.find();
     res.json({
-        posts:posts
-    })
+      posts: posts,
+    });
   } catch {
     res.status(500).json({
       message: "Internal server error",
