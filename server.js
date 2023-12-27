@@ -62,12 +62,15 @@ app.post("/register", async (req, res) => {
 
   const savedUser = await newUser.save();
 
-  const token = jwt.sign({email:savedUser.email},secretKeyForAuthentication);
+  const token = jwt.sign(
+    { email: savedUser.email },
+    secretKeyForAuthentication
+  );
 
   res.status(201).json({
-    token:token,
+    token: token,
     message: "account created!",
-  });   
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -99,13 +102,13 @@ app.post("/login", async (req, res) => {
 // User Posts POST request
 app.post("/post", verifyToken, async (req, res) => {
   const user = await User.findOne({ email: req.user.email });
+  console.log(user);
   const { topic, title, description } = req.body;
   const newPost = await Post({
     topic: topic,
     title: title,
     description: description,
-    user_id: user._id
-    
+    user_id: user._id,
   });
 
   const savedPost = await newPost.save();
@@ -117,10 +120,38 @@ app.post("/post", verifyToken, async (req, res) => {
 // User Posts GET requests
 app.get("/api/posts", verifyToken, async (req, res) => {
   try {
-    const posts = await Post.find();
-    res.json({
-      posts: posts,
-    });
+    const page = parseInt(req.query._page) || 1;
+    const limit = parseInt(req.query._limit) || 10;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .skip(startIndex)
+      .limit(limit);
+    const totalCount = await Post.countDocuments();
+
+    const results = {};
+
+    if (endIndex < totalCount) {
+      results.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
+
+    results.posts = posts;
+
+    res.json(results);
+
   } catch {
     res.status(500).json({
       message: "Internal server error",
