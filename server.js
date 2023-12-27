@@ -62,9 +62,12 @@ app.post("/register", async (req, res) => {
 
   const savedUser = await newUser.save();
 
+  const token = jwt.sign({email:savedUser.email},secretKeyForAuthentication);
+
   res.status(201).json({
+    token:token,
     message: "account created!",
-  });
+  });   
 });
 
 app.post("/login", async (req, res) => {
