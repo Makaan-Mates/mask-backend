@@ -168,6 +168,10 @@
 
         try{
             const postDetails = await Post.findOne({_id:postId})
+            .populate("user_id") // Populate the user details based on the user_id reference
+            .exec();
+
+            
             if(!postDetails) {
                 res.status(404).json({
                     message: "Post not found!"
