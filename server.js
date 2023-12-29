@@ -45,7 +45,7 @@ const verifyToken = (req, res, next) => {
 };
 
 app.get("/api/home", verifyToken, async (req, res) => {
-    const user = await User.findOne({ email: req.user.email });
+  const user = await User.findOne({ email: req.user.email });
 
   res.json({
     user: user,
@@ -188,87 +188,77 @@ app.get("/api/post/:id", verifyToken, async (req, res) => {
   }
 });
 
-    app.post("/post/comment", verifyToken,async (req, res) => {
-    try {
-        const commentBody = req.body.content;
-        const postid = req.body.postid
-        const email=req.user.email
-        const isReplySection = req.query.isReplySection
-        const parentId = req.body.commentId
-        const user =  await User.findOne({email:email})
-    
-        const newComment = await Comment({
-        content: commentBody,
-        user_id: user._id,
-        post_id: postid
-        });
+app.post("/post/comment", verifyToken, async (req, res) => {
+  try {
+    const commentBody = req.body.content;
+    const postid = req.body.postid;
+    const email = req.user.email;
+    const isReplySection = req.query.isReplySection;
+    const parentId = req.body.commentId;
+    const user = await User.findOne({ email: email });
 
-
-        const savedComment = await newComment.save();
-
-        if (isReplySection==="true") {
-            const updatedComment = await Comment.updateOne(
-            { _id: savedComment._id }, 
-            { $set: { parentId: parentId } }
-            );
-    
-            if (updatedComment.nModified === 0) {
-            return res.status(500).json({ message: 'Failed to update parentId' });
-            }
-        }
-
-        res.json({
-        message: savedComment,
-        });
-    } catch (err) {
-        res.status(500).json({ message: err });
-    }
+    const newComment = await Comment({
+      content: commentBody,
+      user_id: user._id,
+      post_id: postid,
     });
+
+    const savedComment = await newComment.save();
+
+    if (isReplySection === "true") {
+      const updatedComment = await Comment.updateOne(
+        { _id: savedComment._id },
+        { $set: { parentId: parentId } }
+      );
+
+      if (updatedComment.nModified === 0) {
+        return res.status(500).json({ message: "Failed to update parentId" });
+      }
+    }
+
+    res.json({
+      message: savedComment,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err });
+  }
+});
 
 app.get("/comments", async (req, res) => {
   try {
     const allComments = await Comment.find()
-    .populate("user_id")
-    .populate("post_id")
-    .exec();
+      .populate("user_id")
+      .populate("post_id")
+      .exec();
 
     res.json(allComments);
   } catch (error) {
     res.status(500).json({ message: error });
   }
-})
+});
 
-app.post('/topics', verifyToken, async (req,res)=>{
+app.post("/topics", verifyToken, async (req, res) => {
+  try {
     const topicsFollowing = req.body.selectedTopics;
     const user = await User.findOne({ email: req.user.email });
     const updatedUser = await User.updateOne(
-        { _id: user._id }, 
-        { $set: { topicsFollowing: topicsFollowing } }
-        );
+      { _id: user._id },
+      { $set: { topicsFollowing: topicsFollowing } }
+    );
 
-        if (updatedUser.nModified === 0) {
-            return res.status(500).json({ message: 'Failed to update user' });
-            }
+    if (updatedUser.nModified === 0) {
+      return res.status(500).json({ message: "Failed to update user" });
+    }
 
-    
- res.json({
-    message:updatedUser
- })
-
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
+    res.json({
+      message: "success",
+    });
+  } catch (error) {
+    res.status(500).json({
+        message:"internal server error"
+    })
+  }
+});
 
 app.listen(4000, () => {
   console.log("server started...");
