@@ -196,8 +196,6 @@ app.get("/api/post/:id", verifyToken, async (req, res) => {
         const isReplySection = req.query.isReplySection
         const parentId = req.body.commentId
         const user =  await User.findOne({email:email})
-
-        console.log(isReplySection)
     
         const newComment = await Comment({
         content: commentBody,
