@@ -188,28 +188,44 @@ app.get("/api/post/:id", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/post/comment", verifyToken,async (req, res) => {
-  try {
-    const commentBody = req.body.content;
-    const postid = req.body.postid
-    const email=req.user.email
-    const user =  await User.findOne({email:email})
-   
-    const newComment = await Comment({
-      content: commentBody,
-      user_id: user._id,
-      post_id: postid
-    });
+    app.post("/post/comment", verifyToken,async (req, res) => {
+    try {
+        const commentBody = req.body.content;
+        const postid = req.body.postid
+        const email=req.user.email
+        const isReplySection = req.query.isReplySection
+        const parentId = req.body.commentId
+        const user =  await User.findOne({email:email})
 
-    const savedComment = await newComment.save();
+        console.log(isReplySection)
+    
+        const newComment = await Comment({
+        content: commentBody,
+        user_id: user._id,
+        post_id: postid
+        });
 
-    res.json({
-      message: savedComment,
+
+        const savedComment = await newComment.save();
+
+        if (isReplySection==="true") {
+            const updatedComment = await Comment.updateOne(
+            { _id: savedComment._id }, 
+            { $set: { parentId: parentId } }
+            );
+    
+            if (updatedComment.nModified === 0) {
+            return res.status(500).json({ message: 'Failed to update parentId' });
+            }
+        }
+
+        res.json({
+        message: savedComment,
+        });
+    } catch (err) {
+        res.status(500).json({ message: err });
+    }
     });
-  } catch (err) {
-    res.status(500).json({ message: err });
-  }
-});
 
 app.get("/comments", async (req, res) => {
   try {
