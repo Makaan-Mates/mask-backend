@@ -7,16 +7,21 @@ const commentSchema= new Schema(
             type:String,
             required:true
         },
-        owner:{
+        user_id:{
             type:Schema.Types.ObjectId,
             ref:'User'
         },
-        post:{
+        post_id:{
             type:Schema.Types.ObjectId,
             ref:'Post'
+        },
+        parentId: {
+            type: String, 
+            default:null
         }
     },
     {timestamps:true}
 )
 
-export const Comment=mongoose.model("Comment",commentSchema)
+const Comment=mongoose.model("Comment",commentSchema)
+module.exports = Comment;

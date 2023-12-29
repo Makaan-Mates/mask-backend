@@ -22,24 +22,15 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    topics:[
-        {
-        type:Schema.Types.ObjectId,
-        ref:'Topic'
-        }
-    ],
     posts: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Post',
       },
     ],
-    refreshToken:{
-        type:String,
-        required:true
-    }
   },
   { timestamps: true }
 );
 
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports= User;
