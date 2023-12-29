@@ -44,10 +44,11 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-app.get("/api/home", verifyToken, (req, res) => {
-  //   console.log(req.user);
+app.get("/api/home", verifyToken, async (req, res) => {
+    const user = await User.findOne({ email: req.user.email });
+
   res.json({
-    key: "hello",
+    user: user,
   });
 });
 
@@ -104,7 +105,6 @@ app.post("/login", async (req, res) => {
 // User Posts POST request
 app.post("/post", verifyToken, async (req, res) => {
   const user = await User.findOne({ email: req.user.email });
-  console.log(user);
   const { topic, title, description } = req.body;
   const newPost = await Post({
     topic: topic,
@@ -237,6 +237,38 @@ app.get("/comments", async (req, res) => {
     res.status(500).json({ message: error });
   }
 })
+
+app.post('/topics', verifyToken, async (req,res)=>{
+    const topicsFollowing = req.body.selectedTopics;
+    const user = await User.findOne({ email: req.user.email });
+    const updatedUser = await User.updateOne(
+        { _id: user._id }, 
+        { $set: { topicsFollowing: topicsFollowing } }
+        );
+
+        if (updatedUser.nModified === 0) {
+            return res.status(500).json({ message: 'Failed to update user' });
+            }
+
+    
+ res.json({
+    message:updatedUser
+ })
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.listen(4000, () => {
   console.log("server started...");
