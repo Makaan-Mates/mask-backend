@@ -188,6 +188,7 @@ app.get("/api/post/:id", verifyToken, async (req, res) => {
   }
 });
 
+// posting comments
 app.post("/post/comment", verifyToken, async (req, res) => {
   try {
     const commentBody = req.body.content;
@@ -224,6 +225,7 @@ app.post("/post/comment", verifyToken, async (req, res) => {
   }
 });
 
+// getting comments from the database and providing it to frontend
 app.get("/comments", async (req, res) => {
   try {
     const allComments = await Comment.find()
@@ -237,6 +239,7 @@ app.get("/comments", async (req, res) => {
   }
 });
 
+// Saving topics followinng by a user in the database.
 app.post("/topics", verifyToken, async (req, res) => {
   try {
     const topicsFollowing = req.body.selectedTopics;
@@ -255,8 +258,28 @@ app.post("/topics", verifyToken, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-        message:"internal server error"
-    })
+      message: "internal server error",
+    });
+  }
+});
+
+app.delete("/api/post/delete/:postid", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.user.email });
+    const postid = req.params.postid;
+    const postDetails = await Post.findOne({ _id: postid });
+
+    // Delete only if the user is the author of the post
+    if (postDetails.user_id.toString() === user._id.toString()) {
+      const condition = { _id: postid };
+      await Post.deleteOne(condition);
+    }
+
+    res.json({
+      message: "Post Deleted",
+    });
+  } catch (error) {
+    console.log(error);
   }
 });
 
