@@ -311,6 +311,50 @@ app.get('/api/posts/user/:userId', verifyToken, async (req, res) => {
   }
 })
 
+//upvote on posts
+
+app.post("/api/post/upvote/:postid", verifyToken, async (req, res) => {
+  try {
+    const postid = req.params.postid;
+    const postDetails = await Post.findOne({ _id: postid });
+    const userDetails = await User.findOne({ email: req.user.email });
+    const userId = userDetails._id.toString();
+    console.log(userId);
+
+    if (postDetails.upvotes.includes(userId)) {
+      const index = postDetails.upvotes.indexOf(userId);
+      postDetails.upvotes.splice(index, 1);
+      await postDetails.save();
+      res.status(200).json({ message: "Upvote Removed", postDetails });
+    } else {
+      postDetails.upvotes.push(userId);
+      await postDetails.save();
+      res.json({
+        message: "Upvoted",
+        postDetails,
+      });
+    }
+
+    console.log(postDetails.upvotes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/api/upvote/:postid", async (req, res) => {
+  try {
+    
+    const postid = req.params.postid;
+    const postDetails = await Post.findOne({ _id: postid });
+    res.json({
+        message:postDetails
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(4000, () => {
   console.log('server started...')
 })

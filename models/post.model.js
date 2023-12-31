@@ -23,7 +23,15 @@ const postSchema = new Schema(
     },
     isPost: {
       type: Boolean,
-    }
+    },
+    upvotes:
+     [ {
+        type:Schema.Types.ObjectId,
+        ref : 'User'
+      }]
+    
+
+  
   },
   {timestamps:true}
 );

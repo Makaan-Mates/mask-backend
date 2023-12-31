@@ -27,6 +27,7 @@ const userSchema = new Schema(
       default: "",
     },
     profession: {
+
       type: String,
       required: true,
     },
