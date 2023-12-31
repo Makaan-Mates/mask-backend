@@ -22,7 +22,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-   profession: {
+    location:{
+      type: String,
+      default: "",
+    },
+    profession: {
+
       type: String,
       required: true,
     },
