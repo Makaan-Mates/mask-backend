@@ -22,12 +22,18 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    posts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Post",
-      },
-    ],
+    profession: {
+      type: String,
+      required: true,
+    },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
     topicsFollowing: [
       {
         name: String,
