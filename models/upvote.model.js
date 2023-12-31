@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const likeSchema= new Schema (
+const upvoteSchema= new Schema (
     {
-        likedBy:{
+        upvotedBy:{
             type:Schema.Types.ObjectId,
             ref:'User'
         },
@@ -19,5 +19,5 @@ const likeSchema= new Schema (
     {timestamps:true}
 )
 
-const Like = mongoose.model("Like",likeSchema);
-module.exports = Like;
+const Upvote = mongoose.model("Upvote",upvoteSchema);
+module.exports = Upvote;
