@@ -103,38 +103,52 @@ app.post("/login", async (req, res) => {
 });
 
 // User Posts POST request
-app.post("/post", verifyToken, async (req, res) => {
-  const user = await User.findOne({ email: req.user.email });
-  const { topic, title, description } = req.body;
-  const newPost = await Post({
-    topic: topic,
-    title: title,
-    description: description,
-    user_id: user._id,
-  });
+app.post('/post', verifyToken, async (req, res) => {
+    const user = await User.findOne({ email: req.user.email })
+    const { topic, title, description } = req.body
+    const newPost = await Post({
+      topic: topic,
+      title: title,
+      description: description,
+      user_id: user._id,
+    })
+  
+    const savedPost = await newPost.save()
+    res.json({
+      message: savedPost,
+    })
+  })
 
-  const savedPost = await newPost.save();
-  res.json({
-    message: savedPost,
-  });
-});
-
-// User Posts GET requests
 app.get("/api/posts", verifyToken, async (req, res) => {
   try {
     const page = parseInt(req.query._page) || 1;
     const limit = parseInt(req.query._limit) || 10;
-
+    const topicName = req.query.topic;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
+    let posts;
+    let totalCount;
 
-    const posts = await Post.find()
-      .sort({ createdAt: -1 })
-      .skip(startIndex)
-      .limit(limit)
-      .populate("user_id")
-      .exec();
-    const totalCount = await Post.countDocuments();
+    if(topicName === "home"){
+        posts = await Post.find()
+          .sort({ createdAt: -1 })
+          .skip(startIndex)
+          .limit(limit);
+      
+        totalCount = await Post.countDocuments();
+      } else {
+        posts = await Post.find({
+          topic: new RegExp("^" + topicName + "$", "i"),
+        })
+          .sort({ createdAt: -1 })
+          .skip(startIndex)
+          .limit(limit);
+      
+        totalCount = await Post.countDocuments({
+          topic: new RegExp("^" + topicName + "$", "i"),
+        });
+      }
+
 
     const results = {};
 
@@ -152,8 +166,11 @@ app.get("/api/posts", verifyToken, async (req, res) => {
       };
     }
 
-    results.posts = posts;
+    if (posts.length === 0) {
+      return res.json({ message: "No posts found for the specified topic" });
+    }
 
+    results.posts = posts;
     res.json(results);
   } catch {
     res.status(500).json({
