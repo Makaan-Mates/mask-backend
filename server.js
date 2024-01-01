@@ -202,7 +202,7 @@ app.get("/api/post/:id", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    //res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -348,7 +348,7 @@ app.get("/api/post/upvote/:postid", async (req, res) => {
     const postid = req.params.postid;
     const postDetails = await Post.findOne({ _id: postid });
     res.json({
-      message: postDetails,
+      upvotes: postDetails.upvotes,
     });
   } catch (error) {
     console.log(error);
@@ -377,8 +377,10 @@ app.post("/api/comment/upvote/:commentid", verifyToken, async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
-    res.send("server error")
+    console.log('Error details:', error)
+    res.json({
+        message:"server error"
+    })
   }
 });
 
@@ -389,7 +391,7 @@ app.get("/api/comment/upvote/:commentid", async (req, res) => {
       const commentid = req.params.commentid;
       const commentDetails = await Comment.findOne({ _id: commentid });
       res.json({
-        message: commentDetails,
+        upvotes: commentDetails.upvotes,
       });
     } catch (error) {
       console.log(error);
