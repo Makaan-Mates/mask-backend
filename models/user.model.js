@@ -29,7 +29,7 @@ const userSchema = new Schema(
     profession: {
 
       type: String,
-      required: true,
+     
     },
     profilePicture: {
       type: String,

@@ -354,6 +354,48 @@ app.get("/api/upvote/:postid", async (req, res) => {
   }
 });
 
+app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
+  try {
+    const postid = req.params.postid;
+    const postDetails = await Post.findOne({ _id: postid });
+    // const title = postDetails.title;
+    // const description = postDetails.description;
+    const postUserId = postDetails.user_id.toString()
+   
+    const userId = await User.findOne({ email: req.user.email });
+    const loggedInUserId = userId._id.toString()
+      
+    const { newTitle, newDescription } = req.body;
+
+    let updatePostDetails;
+
+    if (postUserId === loggedInUserId) {
+      updatePostDetails = await Post.findOneAndUpdate(
+        {
+          _id: postid,
+        },
+        {
+          $set: { title: newTitle, description: newDescription },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    console.log(updatePostDetails);
+    if (!updatePostDetails) {
+      console.log("Not Updated");
+    }
+
+    res.json({
+      message: "Post Edited",
+      postDetails
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(4000, () => {
   console.log("server started...");
 });
