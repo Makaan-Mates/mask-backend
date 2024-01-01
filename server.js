@@ -364,7 +364,7 @@ app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
     const userId = await User.findOne({ email: req.user.email });
     const loggedInUserId = userId._id.toString()
       
-    const { newTitle, newDescription } = req.body;
+    const { newTitle, newDescription, newTopic } = req.body;
 
     let updatePostDetails;
 
@@ -374,14 +374,14 @@ app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
           _id: postid,
         },
         {
-          $set: { title: newTitle, description: newDescription },
+          $set: { title: newTitle, description: newDescription,topic: newTopic },
         },
         {
           new: true,
         }
       );
     }
-    console.log(updatePostDetails);
+   
     if (!updatePostDetails) {
       console.log("Not Updated");
     }
