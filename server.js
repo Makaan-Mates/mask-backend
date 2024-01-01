@@ -11,6 +11,7 @@ const ObjectId = mongoose.Types.ObjectId;
 
 app.use(cors());
 app.use(express.json());
+
 // Connecting to mongodb...
 mongoose.connect(
   "mongodb+srv://rathoursourabh45:Mask%40%5F%231045718@cluster0.px2olez.mongodb.net/users"
@@ -22,6 +23,34 @@ db.on("error", console.error.bind(console, "connection error:"));
 db.once("once", (error, response) => {
   console.log(response);
 });
+
+
+// Date standardization
+function formatTimeSince(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) {
+        return interval + "y";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) {
+        return interval + "mo";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) {
+        return interval + "d";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) {
+        return interval + "h";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) {
+        return interval + "min";
+    }
+    return "just now";
+}
 
 // Token Verification
 const verifyToken = (req, res, next) => {
@@ -171,6 +200,11 @@ app.get("/api/posts", verifyToken, async (req, res) => {
       return res.json({ message: "No posts found for the specified topic" });
     }
 
+    posts = posts.map(post => ({
+        ...post._doc,
+        timeSinceCreated: formatTimeSince(new Date(post.createdAt)),
+      }));
+
     results.posts = posts;
     res.json(results);
   } catch {
@@ -199,6 +233,7 @@ app.get("/api/post/:id", verifyToken, async (req, res) => {
 
     res.json({
       postDetails,
+      timeSinceCreated: formatTimeSince(new Date(postDetails.createdAt)),
     });
   } catch (error) {
     console.log(error);
@@ -359,11 +394,11 @@ app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
   try {
     const postid = req.params.postid;
     const postDetails = await Post.findOne({ _id: postid });
-    const postUserId = postDetails.user_id.toString()
-   
+    const postUserId = postDetails.user_id.toString();
+
     const userId = await User.findOne({ email: req.user.email });
-    const loggedInUserId = userId._id.toString()
-      
+    const loggedInUserId = userId._id.toString();
+
     const { newTitle, newDescription, newTopic } = req.body;
 
     let updatePostDetails;
@@ -374,21 +409,25 @@ app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
           _id: postid,
         },
         {
-          $set: { title: newTitle, description: newDescription,topic: newTopic },
+          $set: {
+            title: newTitle,
+            description: newDescription,
+            topic: newTopic,
+          },
         },
         {
           new: true,
         }
       );
     }
-   
+
     if (!updatePostDetails) {
       console.log("Not Updated");
     }
 
     res.json({
       message: "Post Edited",
-      postDetails
+      postDetails,
     });
   } catch (error) {
     console.error(error);
@@ -396,28 +435,22 @@ app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
   }
 });
 
-
-
 app.get("/api/searchposts/:searchQuery", async (req, res) => {
   try {
-    const searchQuery = new RegExp(`${req.params.searchQuery}`, "i" ) ;
+    const searchQuery = new RegExp(`${req.params.searchQuery}`, "i");
     const searchResults = await Post.find({
-      $or: [
-        { title: searchQuery  },
-        { description: searchQuery },
-      ]
+      $or: [{ title: searchQuery }, { description: searchQuery }],
     })
       .populate("user_id")
       .exec();
 
     res.json({
       message: searchResults,
-
     });
   } catch (error) {
     console.log(error);
   }
-})
+});
 
 // upvote on comments
 app.post("/api/comment/upvote/:commentid", verifyToken, async (req, res) => {
@@ -441,26 +474,25 @@ app.post("/api/comment/upvote/:commentid", verifyToken, async (req, res) => {
       });
     }
   } catch (error) {
-    console.log('Error details:', error)
+    console.log("Error details:", error);
     res.json({
-        message:"server error"
-    })
+      message: "server error",
+    });
   }
 });
 
 // getting comment upvotes
 app.get("/api/comment/upvote/:commentid", async (req, res) => {
-    try {
-      const commentid = req.params.commentid;
-      const commentDetails = await Comment.findOne({ _id: commentid });
-      res.json({
-        upvotes: commentDetails.upvotes,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  });
-
+  try {
+    const commentid = req.params.commentid;
+    const commentDetails = await Comment.findOne({ _id: commentid });
+    res.json({
+      upvotes: commentDetails.upvotes,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.listen(4000, () => {
   console.log("server started...");
