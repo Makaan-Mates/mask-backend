@@ -355,13 +355,10 @@ app.get("/api/post/upvote/:postid", async (req, res) => {
   }
 });
 
-
 app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
   try {
     const postid = req.params.postid;
     const postDetails = await Post.findOne({ _id: postid });
-    // const title = postDetails.title;
-    // const description = postDetails.description;
     const postUserId = postDetails.user_id.toString()
    
     const userId = await User.findOne({ email: req.user.email });
@@ -393,6 +390,13 @@ app.post("/api/post/edit/:postid", verifyToken, async (req, res) => {
       message: "Post Edited",
       postDetails
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
 
 app.get("/api/searchposts/:searchQuery", async (req, res) => {
   try {
@@ -413,7 +417,6 @@ app.get("/api/searchposts/:searchQuery", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-
 })
 
 // upvote on comments
