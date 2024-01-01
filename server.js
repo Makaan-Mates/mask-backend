@@ -355,6 +355,27 @@ app.get("/api/post/upvote/:postid", async (req, res) => {
   }
 });
 
+app.get("/api/searchposts/:searchQuery", async (req, res) => {
+  try {
+    const searchQuery = new RegExp(`${req.params.searchQuery}`, "i" ) ;
+    const searchResults = await Post.find({
+      $or: [
+        { title: searchQuery  },
+        { description: searchQuery },
+      ]
+    })
+      .populate("user_id")
+      .exec();
+
+    res.json({
+      message: searchResults,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+
 // upvote on comments
 app.post("/api/comment/upvote/:commentid", verifyToken, async (req, res) => {
   try {
