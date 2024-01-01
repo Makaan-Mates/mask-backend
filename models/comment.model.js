@@ -18,7 +18,12 @@ const commentSchema= new Schema(
         parentId: {
             type: String, 
             default:null
-        }
+        },
+        upvotes:
+        [ {
+           type:Schema.Types.ObjectId,
+           ref : 'User'
+         }]
     },
     {timestamps:true}
 )
