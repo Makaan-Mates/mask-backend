@@ -176,7 +176,6 @@ app.get("/api/posts", verifyToken, async (req, res) => {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     const trending = req.query.trending;
-    console.log(trending)
     let posts;
     let totalCount;
 
