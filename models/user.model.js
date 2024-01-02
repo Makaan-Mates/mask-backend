@@ -27,7 +27,6 @@ const userSchema = new Schema(
       default: "",
     },
     profession: {
-
       type: String,
      
     },
@@ -44,7 +43,12 @@ const userSchema = new Schema(
         name: String,
         id: String,
       },
-    ]
+    ],
+    bookmarks : [{
+      type : Schema.Types.ObjectId,
+      ref:'Post'
+    }]
+    
   },
   { timestamps: true }
 );

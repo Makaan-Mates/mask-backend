@@ -24,32 +24,31 @@ db.once("once", (error, response) => {
   console.log(response);
 });
 
-
 // Date standardization
 function formatTimeSince(date) {
-    const seconds = Math.floor((new Date() - date) / 1000);
+  const seconds = Math.floor((new Date() - date) / 1000);
 
-    let interval = Math.floor(seconds / 31536000);
-    if (interval >= 1) {
-        return interval + "y";
-    }
-    interval = Math.floor(seconds / 2592000);
-    if (interval >= 1) {
-        return interval + "mo";
-    }
-    interval = Math.floor(seconds / 86400);
-    if (interval >= 1) {
-        return interval + "d";
-    }
-    interval = Math.floor(seconds / 3600);
-    if (interval >= 1) {
-        return interval + "h";
-    }
-    interval = Math.floor(seconds / 60);
-    if (interval >= 1) {
-        return interval + "min";
-    }
-    return "just now";
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) {
+    return interval + "y";
+  }
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) {
+    return interval + "mo";
+  }
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) {
+    return interval + "d";
+  }
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) {
+    return interval + "h";
+  }
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) {
+    return interval + "min";
+  }
+  return "just now";
 }
 
 // Token Verification
@@ -200,10 +199,10 @@ app.get("/api/posts", verifyToken, async (req, res) => {
       return res.json({ message: "No posts found for the specified topic" });
     }
 
-    posts = posts.map(post => ({
-        ...post._doc,
-        timeSinceCreated: formatTimeSince(new Date(post.createdAt)),
-      }));
+    posts = posts.map((post) => ({
+      ...post._doc,
+      timeSinceCreated: formatTimeSince(new Date(post.createdAt)),
+    }));
 
     results.posts = posts;
     res.json(results);
@@ -489,6 +488,45 @@ app.get("/api/comment/upvote/:commentid", async (req, res) => {
     res.json({
       upvotes: commentDetails.upvotes,
     });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/api/user/bookmark/:postid", verifyToken, async (req, res) => {
+  try {
+    const postid = req.params.postid;
+    const userDetails = await User.findOne({ email: req.user.email });
+
+    if (userDetails.bookmarks.includes(postid)) {
+      userDetails.bookmarks.pull(postid);
+      await userDetails.save();
+      res
+        .status(200)
+        .json({ message: "Post removed from bookmark", userDetails });
+    } else {
+      userDetails.bookmarks.push(postid);
+      await userDetails.save();
+      res.status(200).json({
+        message: "Post bookmarked",
+        userDetails,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/api/post/bookmark/:postid", async (req, res) => {
+  try {
+    const postid = req.params.postid;
+    const users = await User.find({ bookmarks: { $in: [postid] } });
+    const bookMarkedUsers = users.map(user => (user._id))
+
+      res.json({
+        bookmarkedUsers: bookMarkedUsers
+      });
+     
   } catch (error) {
     console.log(error);
   }
