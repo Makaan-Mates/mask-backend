@@ -28,7 +28,12 @@ const postSchema = new Schema(
      [ {
         type:Schema.Types.ObjectId,
         ref : 'User'
-      }]
+      }],
+      
+      totalComments : {
+        type : Number,
+        default: 0
+      }
     
 
   
