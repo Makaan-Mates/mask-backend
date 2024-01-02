@@ -229,6 +229,7 @@ app.get("/api/posts", verifyToken, async (req, res) => {
       timeSinceCreated: formatTimeSince(new Date(post.createdAt)),
     }));
 
+
     if (trending==="true") {
       posts.sort((a, b) => {
         const scoreA = calculateTrendingScore(
@@ -541,6 +542,45 @@ app.get("/api/comment/upvote/:commentid", async (req, res) => {
     res.json({
       upvotes: commentDetails.upvotes,
     });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/api/user/bookmark/:postid", verifyToken, async (req, res) => {
+  try {
+    const postid = req.params.postid;
+    const userDetails = await User.findOne({ email: req.user.email });
+
+    if (userDetails.bookmarks.includes(postid)) {
+      userDetails.bookmarks.pull(postid);
+      await userDetails.save();
+      res
+        .status(200)
+        .json({ message: "Post removed from bookmark", userDetails });
+    } else {
+      userDetails.bookmarks.push(postid);
+      await userDetails.save();
+      res.status(200).json({
+        message: "Post bookmarked",
+        userDetails,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/api/post/bookmark/:postid", async (req, res) => {
+  try {
+    const postid = req.params.postid;
+    const users = await User.find({ bookmarks: { $in: [postid] } });
+    const bookMarkedUsers = users.map(user => (user._id))
+
+      res.json({
+        bookmarkedUsers: bookMarkedUsers
+      });
+     
   } catch (error) {
     console.log(error);
   }
