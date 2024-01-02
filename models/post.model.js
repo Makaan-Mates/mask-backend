@@ -20,6 +20,20 @@ const postSchema = new Schema(
       type: Date,
     },
 
+    isPost: {
+      type: Boolean,
+    },
+    upvotes:
+     [ {
+        type:Schema.Types.ObjectId,
+        ref : 'User'
+      }],
+      
+      totalComments : {
+        type : Number,
+        default: 0
+      }
+    
     upvotes: [
       {
         type: Schema.Types.ObjectId,

@@ -145,6 +145,29 @@ app.post("/post", verifyToken, async (req, res) => {
   });
 });
 
+// Algorithm for trending posts
+const upvoteWeight = 1.5;
+const commentWeight = 1.0;
+
+const calculateScore = (upvotes, comments) => {
+  return upvotes * upvoteWeight + comments * commentWeight;
+};
+
+const recencyBoost = (postCreatedAt) => {
+  const trendingDurationHours = 48;
+  const trendingDurationMilliseconds = trendingDurationHours * 3600 * 1000;
+  const decayFactor = Math.log(2) / trendingDurationMilliseconds;
+
+  const timeDifference = Date.now() - new Date(postCreatedAt).getTime();
+  return Math.exp(-decayFactor * timeDifference);
+};
+
+const calculateTrendingScore = (upvotes, comments, postCreatedAt) => {
+  const score = calculateScore(upvotes, comments);
+  const recencyBoostFactor = recencyBoost(postCreatedAt);
+  return score * recencyBoostFactor;
+};
+
 app.get("/api/posts", verifyToken, async (req, res) => {
   try {
     const page = parseInt(req.query._page) || 1;
@@ -152,6 +175,8 @@ app.get("/api/posts", verifyToken, async (req, res) => {
     const topicName = req.query.topic;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
+    const trending = req.query.trending;
+    console.log(trending)
     let posts;
     let totalCount;
 
@@ -203,6 +228,23 @@ app.get("/api/posts", verifyToken, async (req, res) => {
       ...post._doc,
       timeSinceCreated: formatTimeSince(new Date(post.createdAt)),
     }));
+
+
+    if (trending==="true") {
+      posts.sort((a, b) => {
+        const scoreA = calculateTrendingScore(
+          a.upvotes.length,
+          parseInt(a.totalComments),
+          a.createdAt
+        );
+        const scoreB = calculateTrendingScore(
+          b.upvotes.length,
+          parseInt(b.totalComments),
+          b.createdAt
+        );
+        return scoreB - scoreA;
+      });
+    }
 
     results.posts = posts;
     res.json(results);
@@ -280,10 +322,22 @@ app.post("/post/comment", verifyToken, async (req, res) => {
 // getting comments from the database and providing it to frontend
 app.get("/comments", async (req, res) => {
   try {
+    const postid = req.query.postid;
     const allComments = await Comment.find()
       .populate("user_id")
       .populate("post_id")
       .exec();
+
+    // Here filtered comments is the total comments of a post
+    const filteredComments = allComments.filter(
+      (comment) => comment?.post_id?._id.toString() === postid
+    );
+
+    // Update the Post document with the filteredComments
+    await Post.updateOne(
+      { _id: postid },
+      { $set: { totalComments: filteredComments.length } }
+    );
 
     res.json(allComments);
   } catch (error) {
