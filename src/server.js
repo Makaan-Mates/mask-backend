@@ -21,7 +21,6 @@ app.use('/', userRouter);
 app.use('/', commentRouter);
 app.use('/', authRouter)
 
-
 app.listen(process.env.PORT,() => {
   console.log("server started...");
 });
