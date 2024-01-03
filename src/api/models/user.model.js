@@ -22,14 +22,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    location:{
+    location: {
       type: String,
       default: "",
     },
     profession: {
-
       type: String,
-     
     },
     profilePicture: {
       type: String,
@@ -44,7 +42,7 @@ const userSchema = new Schema(
         name: String,
         id: String,
       },
-    ]
+    ],
   },
   { timestamps: true }
 );
