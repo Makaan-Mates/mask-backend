@@ -22,13 +22,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    location:{
+    location: {
       type: String,
       default: "",
     },
     profession: {
       type: String,
-     
     },
     profilePicture: {
       type: String,
@@ -44,7 +43,8 @@ const userSchema = new Schema(
         id: String,
       },
     ],
-    bookmarks : [{
+    
+     bookmarks : [{
       type : Schema.Types.ObjectId,
       ref:'Post'
     }]
