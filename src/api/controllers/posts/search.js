@@ -1,4 +1,6 @@
 const Post = require("../../models/post.model")
+const timeSinceCreated = require('../../helpers/timestamp-algo')
+const { formatTimeSince } = timeSinceCreated
 
 const searchPosts = async (req, res) => {
     try {
@@ -8,9 +10,14 @@ const searchPosts = async (req, res) => {
       })
         .populate("user_id")
         .exec();
+
+      const postsearchResults = searchResults.map((post) => ({
+      ...post._doc,
+      timeSinceCreated: formatTimeSince(new Date(post.createdAt)),
+    }))
   
       res.json({
-        message: searchResults,
+        message: postsearchResults,
       });
     } catch (error) {
       console.log(error);
