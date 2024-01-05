@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../../models/user.model")
+const bcrypt = require("bcrypt")
+
 
 require('dotenv').config();
 
@@ -11,7 +13,10 @@ const login = async (req, res) => {
     return;
   }
 
-  if (user.password === password) {
+   const passwordMatched = await bcrypt.compare(password,user.password)
+   console.log(passwordMatched)
+
+  if (passwordMatched) {
     const token = jwt.sign({ email }, process.env.JWT_SECRET);
     res.status(200).json({
       token: token,
