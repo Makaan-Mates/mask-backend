@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {fetchComments} = require("../controllers/comments/fetch");
 const {publishComment} = require("../controllers/comments/create");
-
+const deleteComment = require("../controllers/comments/delete")
 const {saveCommentUpvotes, fetchCommentUpvotes} = require("../controllers/comments/upvote")
 const {verifyToken} = require("../../auth/auth-middleware");
 // posting comments
@@ -17,5 +17,8 @@ router.post("/api/comment/upvote/:commentid", verifyToken, saveCommentUpvotes);
   
 // getting comment upvotes
 router.get("/api/comment/upvote/:commentid", fetchCommentUpvotes);
+
+// deleting comments 
+router.delete("/api/comment/delete/:commentid", verifyToken, deleteComment )
 
 module.exports = router
