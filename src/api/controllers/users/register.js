@@ -8,6 +8,16 @@ require("dotenv").config();
 const register = async (req, res) => {
   try {
     const { email, password, username } = req.body;
+   
+    const userExists = await User.findOne({username:username})
+
+    if(userExists){
+     return res.json({
+      message: "username already taken"
+     })
+    }
+
+    const usernameSchema = z.string().max(8).min(3)
 
     const emailSchema = z
     .string()
@@ -17,9 +27,18 @@ const register = async (req, res) => {
     });
 
   const passwordSchema = z.string().min(8);
-
+  
+  const usernameValidationResult = usernameSchema.safeParse(username)
   const emailValidationResult = emailSchema.safeParse(email);
   const passwordValidationResult = passwordSchema.safeParse(password);
+
+  if(!usernameValidationResult.success){
+    const message = usernameValidationResult.error.issues[0].message.split('g')[1]
+    const finalMessage = "username" + message
+    return res.json({
+      message: finalMessage
+    })
+  }
 
   if (!emailValidationResult.success) {
     if (emailValidationResult.error.issues && emailValidationResult.error.issues.length > 0) {
