@@ -41,12 +41,15 @@ const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = Math.floor(1000 + Math.random() * 9000);
+   
+    const organization = email.split("@")[1].split(".ac.in")[0]; 
 
     const newUser = new User({
       email: email,
       username: username,
       password: hashedPassword,
-      verificationCode: verificationCode
+      verificationCode: verificationCode,
+      college:organization
     });
 
     const savedUser = await newUser.save();
