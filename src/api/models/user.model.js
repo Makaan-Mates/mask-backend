@@ -22,6 +22,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    college: {
+      type: String,
+    },
+    verificationCode: {
+      type: String,
+    },
     location: {
       type: String,
       default: "",
@@ -43,12 +49,13 @@ const userSchema = new Schema(
         id: String,
       },
     ],
-    
-     bookmarks : [{
-      type : Schema.Types.ObjectId,
-      ref:'Post'
-    }]
-    
+
+    bookmarks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
   },
   { timestamps: true }
 );
