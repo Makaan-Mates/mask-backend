@@ -19,7 +19,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ email }, process.env.JWT_SECRET);
     res.status(200).json({
       token: token,
-      message: "logged in",
+      message: "logged in",user
     });
   } else {
     res.status(401).json({ message: "wrong password bro" });
