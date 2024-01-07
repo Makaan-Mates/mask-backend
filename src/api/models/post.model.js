@@ -33,6 +33,10 @@ const postSchema = new Schema(
         type : Number,
         default: 0
       },
+     views: {
+      type: Number,
+      default: 0,
+      },
   },
   { timestamps: true }
 );
