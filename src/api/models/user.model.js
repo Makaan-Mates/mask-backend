@@ -56,6 +56,7 @@ const userSchema = new Schema(
         ref: "Post",
       },
     ],
+    
   },
   { timestamps: true }
 );
