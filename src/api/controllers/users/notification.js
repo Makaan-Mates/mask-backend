@@ -1,7 +1,5 @@
-const mongoose = require('mongoose')
 const Notification = require('../../models/notification.model')
 const User = require('../../models/user.model')
-// const Post = require('../../models/post.model')
 
 let onlineUsers = []
 
@@ -60,7 +58,6 @@ const socketController = (io) => {
 const fetchUserNotications = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.user.email })
-    // console.log(user)
     const notifications = await Notification.find({
       receiverName: user.username,
     })
