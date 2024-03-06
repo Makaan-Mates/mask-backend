@@ -24,7 +24,13 @@ const socketController = (io) => {
 
     socket.on(
       'sendNotification',
-      async ({ senderName, receiverName, postId, postTitle, notificationAction }) => {
+      async ({
+        senderName,
+        receiverName,
+        postId,
+        postTitle,
+        notificationAction,
+      }) => {
         console.log(
           `senderName: ${senderName}, receiverName: ${receiverName}, postId: ${postId}, notificationAction: ${notificationAction}`,
         )
@@ -57,6 +63,11 @@ const socketController = (io) => {
 
 const fetchUserNotications = async (req, res) => {
   try {
+    if (req.isGuest) {
+      return res.status(403).json({
+        message: 'Please login with college email to get notified.',
+      })
+    }
     const user = await User.findOne({ email: req.user.email })
     const notifications = await Notification.find({
       receiverName: user.username,
@@ -67,10 +78,15 @@ const fetchUserNotications = async (req, res) => {
   }
 }
 
-const clearNotifications = async (req,res) => {
-     const user = await User.findOne({ email: req.user.email })
-        await Notification.deleteMany({ receiverName: user.username })
-        res.json({ message: "Notifications cleared" })
+const clearNotifications = async (req, res) => {
+  if (req.isGuest) {
+    return res.status(403).json({
+      message: 'Please login with college email to get notified.',
+    })
+  }
+  const user = await User.findOne({ email: req.user.email })
+  await Notification.deleteMany({ receiverName: user.username })
+  res.json({ message: 'Notifications cleared' })
 }
 
-module.exports = { socketController, fetchUserNotications , clearNotifications}
+module.exports = { socketController, fetchUserNotications, clearNotifications }
