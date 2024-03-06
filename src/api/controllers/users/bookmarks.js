@@ -3,6 +3,13 @@ const Post = require('../../models/post.model')
 
 const userBookMarks = async (req, res) => {
   try {
+    if (req.isGuest) {
+      return res
+        .status(403)
+        .json({
+          message: 'Please login with college email to bookmark this post.',
+        })
+    }
     const postid = req.params.postid
     const userDetails = await User.findOne({ email: req.user.email })
     if (userDetails.bookmarks.includes(postid)) {
@@ -31,7 +38,7 @@ const fetchBookMarkedUsers = async (req, res) => {
     const bookMarkedUsers = users.map((user) => user._id)
 
     res.json({
-      bookmarkedUsers: bookMarkedUsers
+      bookmarkedUsers: bookMarkedUsers,
     })
   } catch (error) {
     console.log(error)

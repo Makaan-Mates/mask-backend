@@ -1,9 +1,14 @@
-const User = require("../../models/user.model")
+const User = require('../../models/user.model')
 
 const userInfo = async (req, res) => {
-    const user = await User.findOne({ email: req.user.email });
-  
-    res.json(user);
+  if (req.isGuest) {
+    return res.status(403).json({
+      message: 'Please login with college email for user.',
+    })
   }
+  const user = await User.findOne({ email: req.user.email })
 
-module.exports = {userInfo}
+  res.json(user)
+}
+
+module.exports = { userInfo }
