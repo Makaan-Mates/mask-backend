@@ -1,26 +1,29 @@
-const Comment = require("../../models/comment.model")
-const Post = require("../../models/post.model")
+const Comment = require('../../models/comment.model')
+const Post = require('../../models/post.model')
 
 const fetchComments = async (req, res) => {
   try {
-    const postid = req.query.postid;
-    
+    const postid = req.query.postid
+
     const commentsForPost = await Comment.find({ post_id: postid })
-      .populate("user_id")
-      .populate("post_id")
-      .exec();
+      .populate({
+        path: 'user_id',
+        select: 'username college profession bio  -_id',
+      })
+      .populate('post_id')
+      .exec()
 
     await Post.updateOne(
       { _id: postid },
-      { $set: { totalComments: commentsForPost.length } }
-    );
+      { $set: { totalComments: commentsForPost.length } },
+    )
 
-    res.json(commentsForPost);
+    res.json(commentsForPost)
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
   }
-};
+}
 
 module.exports = {
   fetchComments,
-};
+}

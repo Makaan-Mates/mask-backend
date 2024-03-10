@@ -12,14 +12,14 @@ const sendEmail = async (email, verificationCode) => {
         }
       });
 
-    let info = await transporter.sendMail({
+    await transporter.sendMail({
         from: 'rathoursourabh45@gmail.com',
         to: email, 
         subject: 'Email Verification for Mask', 
         text: `Your verification code is: ${verificationCode}`, 
     });
 
-    console.log('Message sent: %s', info.messageId);
+    // console.log('Message sent: %s', info.messageId);
 };
 
 module.exports = sendEmail;

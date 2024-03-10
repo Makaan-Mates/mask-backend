@@ -8,7 +8,10 @@ const { formatTimeSince } = timeSinceCreated
 const userPostsInfo = async (req, res) => {
   try {
     const userPosts = await Post.find({ user_id: req.params.userId })
-      .populate('user_id')
+    .populate({
+      path: 'user_id',
+      select: 'username college profession bio bookmarks -_id',
+    })
       .exec()
 
     const userPostsWithTime = userPosts.map((post) => ({
