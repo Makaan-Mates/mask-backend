@@ -10,7 +10,7 @@ const userPostsInfo = async (req, res) => {
     const userPosts = await Post.find({ user_id: req.params.userId })
     .populate({
       path: 'user_id',
-      select: 'username college profession bio bookmarks -_id',
+      select: 'username college profession bio bookmarks _id',
     })
       .exec()
 
