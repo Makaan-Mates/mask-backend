@@ -8,7 +8,7 @@ const fetchComments = async (req, res) => {
     const commentsForPost = await Comment.find({ post_id: postid })
       .populate({
         path: 'user_id',
-        select: 'username college profession bio  -_id',
+        select: 'username college profession bio  _id',
       })
       .populate('post_id')
       .exec()

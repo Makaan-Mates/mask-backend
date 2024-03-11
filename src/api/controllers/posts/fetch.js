@@ -107,7 +107,7 @@ const fetchPostDetails = async (req, res) => {
     const postDetails = await Post.findOne({ _id: postId })
       .populate({
         path: 'user_id',
-        select: 'username college profession bio  -_id',
+        select: 'username college profession bio  _id',
       })
       .exec()
 
