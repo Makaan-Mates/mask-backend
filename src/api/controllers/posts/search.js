@@ -6,7 +6,10 @@ const searchPosts = async (req, res) => {
   try {
     const searchQuery = new RegExp(`${req.params.searchQuery}`, 'i')
     const searchResults = await Post.find({
-      $or: [{ title: searchQuery }, { description: searchQuery }],
+      $or: [
+        { title: searchQuery },
+        { description: searchQuery },
+      ],
     })
       .populate({
         path: 'user_id',
