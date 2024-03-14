@@ -6,7 +6,10 @@ const userInfo = async (req, res) => {
       message: 'Please login with college email for user.',
     })
   }
-  const user = await User.findOne({ email: req.user.email })
+  const user = await User.findOne(
+    { email: req.user.email },
+    '-password -verificationCode',
+  )
 
   res.json(user)
 }
