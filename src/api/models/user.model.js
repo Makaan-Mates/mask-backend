@@ -28,6 +28,10 @@ const userSchema = new Schema(
     verificationCode: {
       type: String,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     location: {
       type: String,
       default: "",
