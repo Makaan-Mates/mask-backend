@@ -31,9 +31,6 @@ const socketController = (io) => {
         postTitle,
         notificationAction,
       }) => {
-        // console.log(
-        //   `senderName: ${senderName}, receiverName: ${receiverName}, postId: ${postId}, notificationAction: ${notificationAction}`,
-        // )
 
         const receiver = getUser(receiverName)
 
